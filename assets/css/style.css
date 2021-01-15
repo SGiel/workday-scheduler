@@ -57,6 +57,10 @@ textarea{
   color: white;
 }
 
+.past:hover, .present:hover, .future:hover {
+  opacity: 0.90;
+}
+
 .saveBtn {
   border-left: 1px solid black;
   border-top-right-radius: 15px;

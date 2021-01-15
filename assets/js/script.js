@@ -1,7 +1,7 @@
 // initializes schedule array which will be an array of objects
 var schedule = [];
 
-// count for tasks array
+// count for schedule array
 var index = 0;
 // start the scheduler at 9am
 var startSchedule = 9;
@@ -14,7 +14,7 @@ var timeArrInt = [];
 // time array in moment format
 var timeArr = [];
 
-// get today's date    
+// get today's date   
 var dateToday = moment().format("dddd, MMMM Do");
 
 // gets time rounded down to nearest hour 0-23 format
@@ -105,15 +105,15 @@ var createSchedule = function() {
 
         var formCol = $("<form>").attr({"class": "col-11 " + formClass, "id": "form-" + i.toString()});
         var formRow = $("<div>").attr("class", "row");
-        var taskInput = $("<textarea>").attr({"class": "description col-11", 
-            "id": "task-" + i.toString(), "form": "form-" + i.toString(), "name": "textEntry"});
-        taskInput.val(textEntry);
+        var textInput = $("<textarea>").attr({"class": "description col-11", 
+            "id": "text-" + i.toString(), "form": "form-" + i.toString(), "name": "textEntry"});
+        textInput.val(textEntry);
         
         var saveBtn = $("<button>").attr({"class": "saveBtn col-1", "type": "button", "id": "button-" + i.toString()});
         var saveBtnImg = $("<i>").attr("class", "fas fa-save");
         saveBtn.append(saveBtnImg);
 
-        formRow.append(taskInput, saveBtn);
+        formRow.append(textInput, saveBtn);
         formCol.append(formRow);
         hourRow.append(hourCol, formCol);
         
@@ -145,15 +145,15 @@ var checkScheduleText = function(scheduleItem) {
     return found;
 }
 
-// listen for click on a save button and then saves corresponding task to localStorage
-$(".container").on("click", "button", function(event) {
+// listen for click on a save button and then saves corresponding task text to localStorag
+    $(".container").on("click", "button", function(event) {
 
     var indexStr = $(this).attr("id").replace("button-", "");
     var index = parseInt(indexStr);
     var scheduleObj = {};
     
-    // get index by removing button- from the id and then find task-# id
-    scheduleObj.scheduleText = $("#task-"+ indexStr).val().trim();
+    // get index by removing button- from the id and then find text-# id
+    scheduleObj.scheduleText = $("#text-"+ indexStr).val().trim();
     scheduleObj.scheduleHr = $("#time-" + indexStr).text();
    
     // checking if text was already written in the hour slot, and if so, it is 
@@ -162,13 +162,47 @@ $(".container").on("click", "button", function(event) {
     
     //checkObj.scheduleHr = scheduleHr;
     //checkObj.scheduleText = scheduleText;
-    if (!hourFound) {
+    if ((!hourFound) && (scheduleObj.scheduleText)){
         schedule.push(scheduleObj);
     } 
     
     saveSchedule();
-
+    console.log("save schedule in button", schedule);
 });
 
-  createSchedule();
+$(".container").on("blur", "textarea", function() {
 
+    var indexStr = $(this).attr("id").replace("text-", "");
+    var index = parseInt(indexStr);
+    var blurScheduleObj = {};
+
+    // get the textarea's current value/text
+    blurScheduleObj.scheduleText = $(this).val().trim();
+    blurScheduleObj.scheduleHr = $("#time-" + indexStr).text();
+    
+    // checking if text was already written in the hour slot, and if so, it is 
+    // replacing it with the new text
+    var hourFound = checkScheduleText(blurScheduleObj);
+    
+    //checkObj.scheduleHr = scheduleHr;
+    //checkObj.scheduleText = scheduleText;
+    if ((!hourFound) && (blurScheduleObj.scheduleText)){
+        schedule.push(blurScheduleObj);
+    } 
+    
+    saveSchedule();
+    
+    console.log("save schedule in blur", schedule);
+});  
+
+
+createSchedule();
+
+// refreshes the window to every 15 minutes so that past/present/future events will
+// be updated
+setInterval(function () {
+    
+    location.reload();
+
+    // code to execute every 50 minutes
+  }, (1000 * 60) * 15);
