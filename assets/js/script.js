@@ -1,12 +1,17 @@
+// initializes schedule array which will be an array of objects
 var schedule = [];
 
 // count for tasks array
 var index = 0;
 // start the scheduler at 9am
 var startSchedule = 9;
+
 // end the scheduler at 5pm
 var endSchedule = 17;
+
+// time array in integer
 var timeArrInt = [];
+// time array in moment format
 var timeArr = [];
 
 // get today's date    
@@ -40,10 +45,12 @@ var createHourSlots = function () {
     }
 }
 
+// loads the schedule from localStorage
 var loadSchedule = function() {
     schedule = JSON.parse(localStorage.getItem("schedule"));
   
-    // if nothing in localStorage, create a new object to track all task status arrays
+    // if nothing in localStorage, re-initialize schedule array so it is not undefined 
+    // after loading it from localStorage
     if (!schedule) {
         schedule = [];
     }
@@ -54,6 +61,7 @@ var saveSchedule = function() {
     localStorage.setItem("schedule", JSON.stringify(schedule));
 };
 
+// returns the text that was previously stored in localStorage at a given hour slot
 var checkTextEntry = function(hourSlot) {
     var textFromStorage='';
     for (j = 0; j < schedule.length; j++) {
@@ -64,6 +72,7 @@ var checkTextEntry = function(hourSlot) {
     return textFromStorage;
 }
 
+// creates the schedule on the page
 var createSchedule = function() {
 
     addDateToJumbotron();
@@ -94,10 +103,10 @@ var createSchedule = function() {
         hourDisplay.attr("id", "time-" + i.toString());
         hourCol.append(hourDisplay);
 
-        var formCol = $("<form>").attr("class", "col-11 " + formClass);
+        var formCol = $("<form>").attr({"class": "col-11 " + formClass, "id": "form-" + i.toString()});
         var formRow = $("<div>").attr("class", "row");
         var taskInput = $("<textarea>").attr({"class": "description col-11", 
-            "id": "task-" + i.toString(), "form": "task-" + i.toString(), "name": "textEntry"});
+            "id": "task-" + i.toString(), "form": "form-" + i.toString(), "name": "textEntry"});
         taskInput.val(textEntry);
         
         var saveBtn = $("<button>").attr({"class": "saveBtn col-1", "type": "button", "id": "button-" + i.toString()});
@@ -114,33 +123,48 @@ var createSchedule = function() {
 // end of createSchedule function
 };
 
-// listen for submit on a task and then save it to
+// checks if an event already exists at that hour on schedule array, and if so replaces
+// the text rather than push new item onto array
+var checkScheduleText = function(scheduleItem) {
+    var found = false;
+    if (schedule) {
+        for (i = 0; i < schedule.length; i++) {
+            if (scheduleItem.scheduleHr === schedule[i].scheduleHr) {
+                // if text removed from schedule then remove from schedule array
+                if (!scheduleItem.scheduleText) {
+                    schedule.splice(i, 1);
+                    found = true;
+                // if text changed in schedule then change in schedule array
+                } else {
+                    schedule[i].scheduleText = scheduleItem.scheduleText;
+                    found = true;
+                }
+            }
+        }
+    }
+    return found;
+}
+
+// listen for click on a save button and then saves corresponding task to localStorage
 $(".container").on("click", "button", function(event) {
 
     var indexStr = $(this).attr("id").replace("button-", "");
     var index = parseInt(indexStr);
-    var tempObj = {};
+    var scheduleObj = {};
     
     // get index by removing button- from the id and then find task-# id
-    scheduleText = $("#task-"+ indexStr).val().trim();
-    scheduleHr = $("#time-" + indexStr).text();
+    scheduleObj.scheduleText = $("#task-"+ indexStr).val().trim();
+    scheduleObj.scheduleHr = $("#time-" + indexStr).text();
    
-    // checking if text was already writtn in the hour slot, and if so, it is 
+    // checking if text was already written in the hour slot, and if so, it is 
     // replacing it with the new text
-    var hourFound = false;
-    if (schedule) {
-        for (i = 0; i < schedule.length; i++) {
-            if (scheduleHr === schedule[i].scheduleHr) {
-                schedule[i].scheduleText = scheduleText;
-                hourFound = true;
-            }
-        }
-    }
-    tempObj.scheduleHr = scheduleHr;
-    tempObj.scheduleText = scheduleText;
+    var hourFound = checkScheduleText(scheduleObj);
+    
+    //checkObj.scheduleHr = scheduleHr;
+    //checkObj.scheduleText = scheduleText;
     if (!hourFound) {
-        schedule.push(tempObj);
-    }
+        schedule.push(scheduleObj);
+    } 
     
     saveSchedule();
 
