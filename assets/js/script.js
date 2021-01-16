@@ -145,54 +145,50 @@ var checkScheduleText = function(scheduleItem) {
     return found;
 }
 
+var addToSchedule = function (indexStr, index) {
+
+    var scheduleObj = {};
+
+    // get the textarea's current value/text
+    scheduleObj.scheduleText = $("#text-"+ indexStr).val().trim();
+    //blurScheduleObj.scheduleText = $(this).val().trim();
+    scheduleObj.scheduleHr = $("#time-" + indexStr).text();
+    
+    // checking if text was already written in the hour slot, and if so, it is 
+    // replacing it with the new text
+    var hourFound = checkScheduleText(scheduleObj);
+    
+    // push new event onto schedule array if there is text entered and if the item 
+    // did not replace an old event
+    if ((!hourFound) && (scheduleObj.scheduleText)){
+        schedule.push(scheduleObj);
+    } 
+}
+
 // listen for click on a save button and then saves corresponding task text to localStorag
     $(".container").on("click", "button", function(event) {
 
     var indexStr = $(this).attr("id").replace("button-", "");
     var index = parseInt(indexStr);
-    var scheduleObj = {};
-    
-    // get index by removing button- from the id and then find text-# id
-    scheduleObj.scheduleText = $("#text-"+ indexStr).val().trim();
-    scheduleObj.scheduleHr = $("#time-" + indexStr).text();
-   
-    // checking if text was already written in the hour slot, and if so, it is 
-    // replacing it with the new text
-    var hourFound = checkScheduleText(scheduleObj);
-    
-    //checkObj.scheduleHr = scheduleHr;
-    //checkObj.scheduleText = scheduleText;
-    if ((!hourFound) && (scheduleObj.scheduleText)){
-        schedule.push(scheduleObj);
-    } 
+
+    addToSchedule(indexStr, index);
+
+    console.log("button event ", schedule);
     
     saveSchedule();
-    console.log("save schedule in button", schedule);
 });
 
 $(".container").on("blur", "textarea", function() {
 
     var indexStr = $(this).attr("id").replace("text-", "");
     var index = parseInt(indexStr);
-    var blurScheduleObj = {};
 
-    // get the textarea's current value/text
-    blurScheduleObj.scheduleText = $(this).val().trim();
-    blurScheduleObj.scheduleHr = $("#time-" + indexStr).text();
+    addToSchedule(indexStr, index);
+
+    console.log("blur event ", schedule);
     
-    // checking if text was already written in the hour slot, and if so, it is 
-    // replacing it with the new text
-    var hourFound = checkScheduleText(blurScheduleObj);
-    
-    //checkObj.scheduleHr = scheduleHr;
-    //checkObj.scheduleText = scheduleText;
-    if ((!hourFound) && (blurScheduleObj.scheduleText)){
-        schedule.push(blurScheduleObj);
-    } 
-    
-    saveSchedule();
-    
-    console.log("save schedule in blur", schedule);
+    saveSchedule();    
+
 });  
 
 
@@ -201,8 +197,6 @@ createSchedule();
 // refreshes the window to every 15 minutes so that past/present/future events will
 // be updated
 setInterval(function () {
-    
     location.reload();
-
     // code to execute every 50 minutes
-  }, (1000 * 60) * 15);
+    }, (1000 * 60) * 15);
