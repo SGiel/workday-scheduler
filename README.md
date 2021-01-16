@@ -22,7 +22,7 @@ This JavaScript code contains skills I recently learned including accessing loca
 
 ## Link
 
-[Link to Stephanie's Coding Quiz applicaton](https://sgiel.github.io/workday-scheduler/)
+[Link to Stephanie's Workday Scheduler applicaton](https://sgiel.github.io/workday-scheduler/)
 
 
 
